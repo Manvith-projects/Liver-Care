@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Prediction Result</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(to right top, #fdfbfb, #ebedee);
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 1rem;
+      padding: 2rem;
+      max-width: 600px;
+      margin: 3rem auto;
+      color: #1e293b;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    .safe-text {
+      color: #10b981; /* Emerald */
+    }
+    .danger-text {
+      color: #ef4444; /* Red */
+    }
+    .advice-text {
+      color: #f59e0b; /* Amber */
+    }
+    .confidence-text {
+      color: #3b82f6; /* Blue */
+    }
+    a.button {
+      background-color: #6366f1; /* Indigo */
+      transition: 0.3s;
+    }
+    a.button:hover {
+      background-color: #4f46e5;
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen text-gray-800 p-6">
+
+  <div class="glass text-center">
+    {% if risk_level == "safe" %}
+      <h1 class="text-4xl font-bold safe-text">✅ {{ message }}</h1>
+    {% else %}
+      <h1 class="text-4xl font-bold danger-text">⚠️ {{ message }}</h1>
+    {% endif %}
+
+    <p class="mt-4 advice-text text-lg font-medium">{{ advice }}</p>
+
+    <div class="mt-6 confidence-text">
+      <p class="font-semibold">🧠 Confidence Levels:</p>
+      <p>Healthy: <span class="font-bold">{{ healthy_conf }}%</span></p>
+      <p>Diseased: <span class="font-bold">{{ diseased_conf }}%</span></p>
+    </div>
+
+    <a href="{{ url_for('index') }}"
+       class="button inline-block mt-6 px-6 py-3 rounded-lg text-white font-semibold">
+      🔁 Run Another Prediction
+    </a>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Liver Cirrhosis Predictor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(to right top, #eef2f3, #8e9eab);
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 1rem;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .input {
+      padding: 0.75rem;
+      border-radius: 0.75rem;
+      border: 1px solid #ccc;
+      width: 100%;
+      outline: none;
+      transition: 0.3s;
+    }
+    .input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+    iframe {
+      border-radius: 1rem;
+    }
+  </style>
+</head>
+
+<body class="font-sans text-gray-800 p-6">
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+    <!-- Form Section -->
+    <div class="glass p-6">
+      <h2 class="text-3xl font-bold text-indigo-700 mb-4">🧬 Liver Cirrhosis Prediction</h2>
+      <form id="predict-form" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <input type="number" name="age" placeholder="Age" class="input" />
+        <select name="gender" class="input">
+          <option value="">Gender</option>
+          <option value="1">Male</option>
+          <option value="0">Female</option>
+        </select>
+        <input type="number" step="0.1" name="tot_bilirubin" placeholder="Total Bilirubin" class="input" data-annotation="0" />
+        <input type="number" step="0.1" name="direct_bilirubin" placeholder="Direct Bilirubin" class="input" data-annotation="1" />
+        <input type="number" step="0.1" name="tot_proteins" placeholder="Total Proteins" class="input" data-annotation="2" />
+        <input type="number" step="0.1" name="albumin" placeholder="Albumin" class="input" data-annotation="3" />
+        <input type="number" step="0.1" name="ag_ratio" placeholder="A/G Ratio" class="input" data-annotation="4" />
+        <input type="number" name="sgpt" placeholder="SGPT (ALT)" class="input" data-annotation="5" />
+        <input type="number" name="sgot" placeholder="SGOT (AST)" class="input" data-annotation="6" />
+        <input type="number" name="alkphos" placeholder="Alkaline Phosphatase" class="input" data-annotation="7" />
+
+        <div class="col-span-1 sm:col-span-2 text-center mt-4">
+          <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-semibold transition">
+            🔍 Predict Now
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Sketchfab 3D Liver Viewer -->
+    <div class="glass p-4">
+      <h3 class="text-lg font-semibold text-center text-indigo-600 mb-2">Interactive 3D Human Liver</h3>
+      <iframe 
+        id="sketchfab-viewer"
+        title="3D Human Liver Anatomy"
+        width="100%" 
+        height="500" 
+        src="https://sketchfab.com/models/a20686a3e4a54792bfede17ad32f4b1a/embed?autostart=1&ui_infos=0&ui_controls=0&ui_watermark=0&annotations_visible=1"
+        allow="autoplay; fullscreen; xr-spatial-tracking" 
+        allowfullscreen>
+      </iframe>
+    </div>
+  </div>
+
+  <script>
+    const viewer = document.getElementById('sketchfab-viewer');
+
+    // Show annotation when user focuses input
+    function highlightAnnotation(index) {
+      viewer.contentWindow.postMessage({
+        method: "showAnnotation",
+        params: [parseInt(index)]
+      }, "*");
+    }
+
+    // Link each input to its liver part
+    document.querySelectorAll('[data-annotation]').forEach(input => {
+      input.addEventListener('focus', () => {
+        const annotation = input.getAttribute('data-annotation');
+        highlightAnnotation(annotation);
+      });
+    });
+
+    // Handle form submission (optional prediction logic)
+    document.getElementById("predict-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const data = new URLSearchParams(formData);
+
+      try {
+        const response = await fetch("/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: data
+        });
+
+        const result = await response.json();
+        if (result.redirect) window.open(result.redirect, "_blank");
+        else alert("Invalid redirect response.");
+      } catch (err) {
+        console.error("Prediction failed:", err);
+        alert("An error occurred.");
+      }
+    });
+  </script>
+
+</body>
+</html>
